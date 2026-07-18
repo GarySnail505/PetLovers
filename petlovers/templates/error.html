@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} · PetLovers{% endblock %}
+{% block content %}
+<div class="error-page">
+    <span>{{ code }}</span>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <a class="btn btn-primary" href="{{ url_for('main.dashboard') }}">Ir al resumen</a>
+</div>
+{% endblock %}
+{% block public_content %}
+<div class="error-page public-error">
+    <span>{{ code }}</span>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+</div>
+{% endblock %}

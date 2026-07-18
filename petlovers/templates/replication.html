@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Estado de réplicas · PetLovers{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">SQL Server Merge Replication</span>
+        <h1>Estado de datos compartidos</h1>
+        <p>Comparación de claves entre Cumbayá e Iñaquito para Sede, Cliente y Mascota.</p>
+    </div>
+    <a class="btn btn-secondary" href="{{ url_for('main.replication_status') }}">Actualizar</a>
+</div>
+
+<div class="replication-grid">
+{% for item in results %}
+    <section class="panel replication-card">
+        <div class="replication-title">
+            <div>
+                <span class="eyebrow">Entidad compartida</span>
+                <h2>{{ item.entity }}</h2>
+            </div>
+            <span class="status-pill {{ 'ok' if item.ok else 'warning' }}">{{ 'Sin diferencias' if item.ok else 'Revisar' }}</span>
+        </div>
+        <div class="comparison-counts">
+            <div><span>Cumbayá</span><strong>{{ item.cumbaya_count }}</strong></div>
+            <div><span>Iñaquito</span><strong>{{ item.inaquito_count }}</strong></div>
+        </div>
+        {% if not item.ok %}
+        <div class="difference-list">
+            <p><strong>Faltan en Cumbayá:</strong> {{ item.missing_cumbaya|join(', ') if item.missing_cumbaya else 'Ninguno' }}</p>
+            <p><strong>Faltan en Iñaquito:</strong> {{ item.missing_inaquito|join(', ') if item.missing_inaquito else 'Ninguno' }}</p>
+        </div>
+        {% else %}
+        <p class="muted">Las claves coinciden en ambos nodos.</p>
+        {% endif %}
+    </section>
+{% else %}
+    <div class="empty-state"><h3>No se pudo realizar la comparación.</h3><p>Compruebe la conectividad de ambos nodos.</p></div>
+{% endfor %}
+</div>
+
+<section class="distribution-note warning-note">
+    <div class="distribution-icon">!</div>
+    <div>
+        <h3>Interpretación</h3>
+        <p>Esta pantalla compara existencia de claves, no reemplaza el Monitor de replicación de SQL Server. Una diferencia puede ser temporal mientras el agente de mezcla procesa los cambios.</p>
+    </div>
+</section>
+{% endblock %}

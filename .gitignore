@@ -1,0 +1,46 @@
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Configuración privada
+.env
+.env.*
+!.env.example
+instance/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+npm-debug.log*
+pnpm-debug.log*
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales y registros
+tmp/
+temp/
+*.tmp
+*.log
+
+# Respaldos y artefactos de SQL Server
+*.bak
+*.trn
+*.mdf
+*.ndf
+*.ldf
+
+# Notebooks
+.ipynb_checkpoints/

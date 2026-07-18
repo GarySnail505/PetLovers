@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ entity.plural }} · PetLovers{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">{{ active_node_config.location }}</span>
+        <h1>{{ entity.plural }}</h1>
+        <p>{{ entity.description }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.entity_create', entity_key=entity.key) }}">+ Registrar {{ entity.singular }}</a>
+</div>
+
+<section class="panel data-panel">
+    <div class="table-toolbar">
+        <label class="search-box">
+            <span>Buscar</span>
+            <input type="search" data-table-search placeholder="Filtrar registros…">
+        </label>
+        <span class="record-count">{{ rows|length }} registro{{ '' if rows|length == 1 else 's' }}</span>
+    </div>
+    {% if rows %}
+    <div class="table-wrap">
+        <table class="data-table" data-filterable-table>
+            <thead>
+                <tr>
+                    {% for column, label in entity.list_columns %}<th>{{ label }}</th>{% endfor %}
+                    <th class="actions-column">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for column, label in entity.list_columns %}
+                    <td>
+                        {% if column in ['Costo_base','Pago'] %}
+                            {{ row.get(column)|money }}
+                        {% elif column in ['Fecha_nacimiento','Fecha_atencion'] %}
+                            {{ row.get(column)|date_iso }}
+                        {% else %}
+                            {{ row.get(column) if row.get(column) not in [None, ''] else '—' }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td class="row-actions">
+                        <a class="btn btn-small btn-secondary" href="{{ url_for('main.entity_edit', entity_key=entity.key, key=row._key) }}">Editar</a>
+                        <form method="post" action="{{ url_for('main.entity_delete', entity_key=entity.key, key=row._key) }}" data-confirm-delete="{{ entity.singular }} {{ row._key }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button class="btn btn-small btn-danger" type="submit">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="empty-state filtered-empty" hidden>
+        <h3>No hay coincidencias.</h3>
+        <p>Pruebe con otro término de búsqueda.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h3>No hay registros disponibles.</h3>
+        <p>Agregue el primer registro o revise la conexión con el nodo activo.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

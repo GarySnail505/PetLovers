@@ -1,0 +1,21 @@
+{
+  "admin.inaquito": {
+    "display_name": "Administrador Iñaquito",
+    "role": "Administrador central",
+    "password_hash": "pbkdf2_sha256$310000$9iDi0sGsNmxjYpiQ4InMWw==$Nwj2FA5yV2ZSRPIcy3be_kvhAZh1RzR9EsVdmX-deZg=",
+    "allowed_nodes": [
+      "inaquito",
+      "cumbaya"
+    ],
+    "default_node": "inaquito"
+  },
+  "operador.cumbaya": {
+    "display_name": "Operador Cumbayá",
+    "role": "Operador de sede",
+    "password_hash": "pbkdf2_sha256$310000$Go3CqAdZ0Xk4ofi-uebxeA==$coHAgbiqTm8Y8puZIRwSjhZZOh2hmlsiyVPPtdTKsjs=",
+    "allowed_nodes": [
+      "cumbaya"
+    ],
+    "default_node": "cumbaya"
+  }
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}PetLovers Distribuida{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% if current_user %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('main.dashboard') }}">
+            <span class="brand-mark" aria-hidden="true">✚</span>
+            <span><strong>PetLovers</strong><small>Base distribuida</small></span>
+        </a>
+
+        <div class="node-panel">
+            <span class="eyebrow">Nodo activo</span>
+            <strong>{{ active_node_config.location if active_node_config else 'Sin seleccionar' }}</strong>
+            <small>{{ active_node_config.database if active_node_config else '' }}</small>
+            {% if current_user.allowed_nodes|length > 1 %}
+            <div class="node-switcher">
+                {% for node_key in current_user.allowed_nodes %}
+                <form method="post" action="{{ url_for('main.select_node', node_key=node_key) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button class="node-chip {{ 'active' if active_node == node_key else '' }}" type="submit">
+                        {{ all_nodes[node_key].location }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <nav class="nav-menu" aria-label="Navegación principal">
+            <a class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' else '' }}" href="{{ url_for('main.dashboard') }}">Resumen</a>
+            <span class="nav-section">Datos</span>
+            {% for key, label in [('sedes','Sedes'),('clientes','Clientes'),('mascotas','Mascotas'),('empleados','Empleados'),('servicios','Servicios'),('historiales','Historial')] %}
+            <a class="nav-link {{ 'active' if request.view_args and request.view_args.get('entity_key') == key else '' }}" href="{{ url_for('main.entity_list', entity_key=key) }}">{{ label }}</a>
+            {% endfor %}
+            {% if current_user.allowed_nodes|length > 1 %}
+            <span class="nav-section">Distribución</span>
+            <a class="nav-link {{ 'active' if request.endpoint == 'main.replication_status' else '' }}" href="{{ url_for('main.replication_status') }}">Estado de réplicas</a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>{{ current_user.display_name }}</span>
+            <small>{{ current_user.role }}</small>
+            <form method="post" action="{{ url_for('auth.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="link-button">Cerrar sesión</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <span class="status-dot"></span>
+                {{ active_node_config.name if active_node_config else 'Nodo no seleccionado' }}
+            </div>
+            <div class="topbar-meta">{{ active_node_config.server if active_node_config else '' }}</div>
+        </header>
+        <section class="page-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+{% else %}
+    {% block public_content %}{% endblock %}
+{% endif %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

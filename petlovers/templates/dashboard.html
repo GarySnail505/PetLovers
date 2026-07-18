@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Resumen · PetLovers{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">Panel de control</span>
+        <h1>{{ active_node_config.location }}</h1>
+        <p>Información obtenida directamente de <strong>{{ active_node_config.database }}</strong>.</p>
+    </div>
+    <span class="connection-badge {{ 'ok' if current_status and current_status[0] else 'error' }}">
+        {{ current_status[1] if current_status else 'Sin comprobar' }}
+    </span>
+</div>
+
+{% if counts %}
+<div class="metric-grid">
+    {% for label, value in counts.items() %}
+    <article class="metric-card">
+        <span>{{ label }}</span>
+        <strong>{{ value }}</strong>
+        <small>{{ 'Replicado' if label in ['Sedes','Clientes','Mascotas'] else 'Local del nodo' }}</small>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state compact">
+    <h3>No fue posible leer los datos del nodo.</h3>
+    <p>Revise el archivo <code>.env</code>, la autenticación SQL, TCP/IP y el firewall.</p>
+</div>
+{% endif %}
+
+<div class="dashboard-grid">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <span class="eyebrow">Infraestructura</span>
+                <h2>Estado de los nodos autorizados</h2>
+            </div>
+        </div>
+        <div class="status-list">
+            {% for node_key, status in node_statuses.items() %}
+            <div class="status-row">
+                <div>
+                    <strong>{{ all_nodes[node_key].name }}</strong>
+                    <small>{{ all_nodes[node_key].database }} · {{ all_nodes[node_key].server }}</small>
+                </div>
+                <span class="status-pill {{ 'ok' if status[0] else 'error' }}">{{ 'Disponible' if status[0] else 'Sin conexión' }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <span class="eyebrow">Acciones</span>
+                <h2>Accesos rápidos</h2>
+            </div>
+        </div>
+        <div class="quick-actions">
+            <a href="{{ url_for('main.entity_create', entity_key='clientes') }}">Registrar cliente</a>
+            <a href="{{ url_for('main.entity_create', entity_key='mascotas') }}">Registrar mascota</a>
+            <a href="{{ url_for('main.entity_create', entity_key='historiales') }}">Nueva atención</a>
+            <a href="{{ url_for('main.entity_list', entity_key='servicios') }}">Ver servicios</a>
+        </div>
+    </section>
+</div>
+
+<section class="distribution-note">
+    <div class="distribution-icon">DB</div>
+    <div>
+        <h3>Comportamiento distribuido</h3>
+        <p><strong>Cliente, Mascota y Sede</strong> se escriben en el nodo activo y SQL Server se encarga de su replicación. Los <strong>servicios, empleados e historiales</strong> permanecen fragmentados por sede. En Iñaquito, el empleado se reconstruye con <code>Empleado_Op</code> y <code>Empleado_Contacto</code>.</p>
+    </div>
+</section>
+{% endblock %}
