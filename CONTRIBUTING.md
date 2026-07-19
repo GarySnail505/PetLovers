@@ -3,12 +3,13 @@
 ## Preparación
 
 1. Clone el repositorio.
-2. Copie `.env.example` como `.env` y configure el nodo local.
+2. Revise `.env` y configure el nodo local cuando corresponda.
 3. Ejecute `setup.ps1` una vez.
 4. Ejecute `run.ps1` para iniciar el aplicativo.
 
-Nunca agregue `.env`, contraseñas, respaldos `.bak` ni archivos de bases de
-datos al repositorio.
+Este repositorio versiona deliberadamente `.env` junto con los demás archivos
+de configuración. No agregue respaldos `.bak`, archivos físicos de bases de
+datos, dependencias instaladas ni artefactos generados.
 
 ## Flujo recomendado
 

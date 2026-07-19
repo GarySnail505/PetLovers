@@ -9,10 +9,7 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Configuración privada
-.env
-.env.*
-!.env.example
+# Estado local generado por la aplicación
 instance/
 
 # Frontend

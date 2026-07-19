@@ -115,7 +115,8 @@ El cambio de red doméstica a la universidad no requiere modificar el aplicativo
 
 ## Desarrollo con Git y GitHub
 
-El repositorio usa la rama estable `main`, excluye configuraciones privadas y
-valida automáticamente el backend y el frontend en cada push o pull request.
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para crear ramas, ejecutar pruebas y
-publicar cambios sin incluir credenciales ni respaldos de SQL Server.
+El repositorio usa la rama estable `main`, conserva los archivos de
+configuración del proyecto y valida automáticamente el backend y el frontend
+en cada push o pull request. Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para
+crear ramas, ejecutar pruebas y publicar cambios sin incluir dependencias,
+cachés ni respaldos de SQL Server.

@@ -14,6 +14,6 @@ Describa brevemente qué cambia y por qué.
 
 - [ ] Ejecuté las pruebas Python.
 - [ ] Compilé el frontend.
-- [ ] No incluí `.env`, contraseñas ni respaldos.
+- [ ] No incluí dependencias, cachés, compilados ni respaldos de SQL Server.
 - [ ] Documenté el orden de ejecución de cualquier script SQL nuevo.
 - [ ] Probé los nodos 001 y 002 cuando el cambio es distribuido.
