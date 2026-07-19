@@ -63,7 +63,9 @@ def load_settings(root: Path) -> dict:
             "sede": "Sede",
             "cliente": "Cliente",
             "mascota": "Mascota",
-            "empleado_contacto": "Empleado_Contacto" if local_key == "inaquito" else None,
+            # La tabla de contacto existe solamente en Iñaquito. Desde
+            # Cumbayá se accede directamente mediante el linked server.
+            "empleado_contacto": "Empleado_Contacto",
             # Fragmentación horizontal: todo el CRUD pasa por las VPA locales.
             "empleado_op": "V_Empleado_Op",
             "servicio": "V_Servicio",
@@ -80,6 +82,8 @@ def load_settings(root: Path) -> dict:
         "SQL_ENCRYPT": os.getenv("SQL_ENCRYPT", "no"),
         "SQL_TRUST_SERVER_CERTIFICATE": os.getenv("SQL_TRUST_SERVER_CERTIFICATE", "yes"),
         "SQL_CONNECTION_TIMEOUT": int(os.getenv("SQL_CONNECTION_TIMEOUT", "5")),
+        "INAQUITO_LINKED_SERVER": os.getenv("INAQUITO_LINKED_SERVER", "DESKTOP-Q40JF1K"),
+        "INAQUITO_DATABASE": os.getenv("INAQUITO_DATABASE", "PetLoversInaquito"),
         "LOCAL_NODE": local_key,
         # NODES contiene deliberadamente un solo destino conectable.
         "NODES": {local_key: local_node},

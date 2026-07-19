@@ -98,6 +98,10 @@ def friendly_db_error(error: Exception) -> str:
         "8152": "Uno de los valores supera la longitud permitida por la columna.",
         "22001": "Uno de los valores supera la longitud permitida por la columna.",
         "18456": "SQL Server rechazó el usuario o la contraseña configurados.",
+        "7202": "No existe el linked server configurado hacia Iñaquito.",
+        "7314": "El linked server no encuentra la tabla remota requerida en Iñaquito.",
+        "7391": "SQL Server no pudo iniciar la transacción distribuida. Revise MSDTC en ambos nodos.",
+        "7411": "El linked server no permite la operación remota requerida. Revise RPC y DATA ACCESS.",
         "08001": "No fue posible conectarse con SQL Server. Revise IP, puerto, firewall e instancia.",
         "HYT00": "La conexión con SQL Server agotó el tiempo de espera.",
     }

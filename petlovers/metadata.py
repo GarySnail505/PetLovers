@@ -42,21 +42,25 @@ def entities_for_node(node_key: str) -> dict[str, EntityDef]:
         ("Cargo", "Cargo"),
         ("Codigo_sede", "Sede"),
     ]
-    if node_key == "inaquito":
-        employee_fields.extend(
-            [
-                FieldDef("Cedula_empleado", "Cédula", max_length=10),
-                FieldDef("Celular_empleado", "Celular", max_length=10),
-                FieldDef("Correo_empleado", "Correo", input_type="email", max_length=100),
-            ]
-        )
-        employee_columns.extend(
-            [
-                ("Cedula_empleado", "Cédula"),
-                ("Celular_empleado", "Celular"),
-                ("Correo_empleado", "Correo"),
-            ]
-        )
+    employee_fields.extend(
+        [
+            FieldDef(
+                "Cedula_empleado",
+                "Cédula",
+                max_length=10,
+                help_text="Se almacena directamente en Empleado_Contacto del nodo Iñaquito.",
+            ),
+            FieldDef("Celular_empleado", "Celular", max_length=10),
+            FieldDef("Correo_empleado", "Correo", input_type="email", max_length=100),
+        ]
+    )
+    employee_columns.extend(
+        [
+            ("Cedula_empleado", "Cédula"),
+            ("Celular_empleado", "Celular"),
+            ("Correo_empleado", "Correo"),
+        ]
+    )
 
     return {
         "sedes": EntityDef(
@@ -133,13 +137,12 @@ def entities_for_node(node_key: str) -> dict[str, EntityDef]:
             singular="empleado",
             plural="Empleados",
             description=(
-                "Vista particionada global y datos de contacto almacenados en Iñaquito."
-                if node_key == "inaquito"
-                else "Vista particionada global; los datos de contacto pertenecen al nodo Iñaquito."
+                "La parte operativa usa la VPA horizontal. Los datos de contacto se escriben "
+                "directamente en la tabla Empleado_Contacto de Iñaquito."
             ),
             primary_key="Codigo_empleado",
             storage_strategy="horizontal_vpa",
-            routing_label="VPA global · Código de sede decide el fragmento",
+            routing_label="V_Empleado_Op por sede · contacto directo en Iñaquito",
             fields=employee_fields,
             list_columns=employee_columns,
         ),

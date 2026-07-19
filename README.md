@@ -75,7 +75,14 @@ LOCAL_SQL_PORT=1433
 LOCAL_SQL_DATABASE=PetLoversCumbaya
 LOCAL_SQL_USER=pl_app_cumbaya
 LOCAL_SQL_PASSWORD=CONTRASENA_LOCAL
+INAQUITO_LINKED_SERVER=DESKTOP-Q40JF1K
+INAQUITO_DATABASE=PetLoversInaquito
 ```
+
+Al crear, editar o eliminar un empleado desde Cumbayá, la parte operativa usa
+`V_Empleado_Op`, mientras que cédula, celular y correo se escriben directamente
+en `[DESKTOP-Q40JF1K].[PetLoversInaquito].[dbo].[Empleado_Contacto]`. El linked
+server debe permitir acceso de datos, CRUD remoto y transacciones distribuidas.
 
 ## Ejecución cotidiana
 

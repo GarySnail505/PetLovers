@@ -34,6 +34,23 @@ class NodeRepository:
         return f"dbo.[{name}]"
 
     @staticmethod
+    def _qualified_table(*parts: str) -> str:
+        if not parts or any(not part or not re.fullmatch(r"[A-Za-z0-9_.\\-]+", part) for part in parts):
+            raise RuntimeError("Nombre SQL vinculado no válido en la configuración.")
+        return ".".join(f"[{part}]" for part in parts)
+
+    def _employee_contact_table(self) -> str:
+        table = self.t["empleado_contacto"]
+        if self.node_key == "inaquito":
+            return self._table(table)
+        return self._qualified_table(
+            current_app.config["INAQUITO_LINKED_SERVER"],
+            current_app.config["INAQUITO_DATABASE"],
+            "dbo",
+            table,
+        )
+
+    @staticmethod
     def _trim(value):
         return value.strip() if isinstance(value, str) else value
 
@@ -175,7 +192,7 @@ class NodeRepository:
             "servicios": ["Codigo_servicio", "Tipo_servicio", "Costo_base", "Descripcion", "Codigo_sede"],
             "historiales": ["Id_historial", "Id_mascota", "Codigo_servicio", "Codigo_empleado", "Codigo_sede", "Fecha_atencion", "Pago"],
         }
-        if entity == "empleados" and self.node_key == "inaquito":
+        if entity == "empleados":
             required_by_entity[entity] += ["Cedula_empleado", "Celular_empleado", "Correo_empleado"]
 
         for name in required_by_entity[entity]:
@@ -311,20 +328,13 @@ class NodeRepository:
 
     def _list_empleados(self):
         op = self._table(self.t["empleado_op"])
-        contact_name = self.t["empleado_contacto"]
-        if contact_name:
-            contact = self._table(contact_name)
-            return fetch_all(
-                self.node_key,
-                f"SELECT op.Codigo_empleado, op.Nombre_empleado, op.Cargo, op.Codigo_sede, "
-                "ct.Cedula_empleado, ct.Celular_empleado, ct.Correo_empleado "
-                f"FROM {op} op LEFT JOIN {contact} ct ON ct.Codigo_empleado=op.Codigo_empleado "
-                "ORDER BY op.Codigo_sede, op.Nombre_empleado",
-            )
+        contact = self._employee_contact_table()
         return fetch_all(
             self.node_key,
-            f"SELECT Codigo_empleado, Nombre_empleado, Cargo, Codigo_sede FROM {op} "
-            "ORDER BY Codigo_sede, Nombre_empleado",
+            f"SELECT op.Codigo_empleado, op.Nombre_empleado, op.Cargo, op.Codigo_sede, "
+            "ct.Cedula_empleado, ct.Celular_empleado, ct.Correo_empleado "
+            f"FROM {op} op LEFT JOIN {contact} ct ON ct.Codigo_empleado=op.Codigo_empleado "
+            "ORDER BY op.Codigo_sede, op.Nombre_empleado",
         )
 
     def _list_servicios(self):
@@ -376,20 +386,13 @@ class NodeRepository:
     def _get_empleado(self, key):
         identifier, site = self._split_key("empleados", key)
         op = self._table(self.t["empleado_op"])
-        if self.t["empleado_contacto"]:
-            contact = self._table(self.t["empleado_contacto"])
-            return fetch_one(
-                self.node_key,
-                f"SELECT op.Codigo_empleado, op.Nombre_empleado, op.Cargo, op.Codigo_sede, "
-                "ct.Cedula_empleado, ct.Celular_empleado, ct.Correo_empleado "
-                f"FROM {op} op LEFT JOIN {contact} ct ON ct.Codigo_empleado=op.Codigo_empleado "
-                "WHERE op.Codigo_empleado=? AND RTRIM(op.Codigo_sede)=?",
-                (identifier, site),
-            )
+        contact = self._employee_contact_table()
         return fetch_one(
             self.node_key,
-            f"SELECT Codigo_empleado, Nombre_empleado, Cargo, Codigo_sede FROM {op} "
-            "WHERE Codigo_empleado=? AND RTRIM(Codigo_sede)=?",
+            f"SELECT op.Codigo_empleado, op.Nombre_empleado, op.Cargo, op.Codigo_sede, "
+            "ct.Cedula_empleado, ct.Celular_empleado, ct.Correo_empleado "
+            f"FROM {op} op LEFT JOIN {contact} ct ON ct.Codigo_empleado=op.Codigo_empleado "
+            "WHERE op.Codigo_empleado=? AND RTRIM(op.Codigo_sede)=?",
             (identifier, site),
         )
 
@@ -483,12 +486,11 @@ class NodeRepository:
                 "(Codigo_empleado, Nombre_empleado, Cargo, Codigo_sede) VALUES (?,?,?,?)",
                 d["Codigo_empleado"], d["Nombre_empleado"], d["Cargo"], d["Codigo_sede"],
             )
-            if self.t["empleado_contacto"]:
-                cn.execute(
-                    f"INSERT INTO {self._table(self.t['empleado_contacto'])} "
-                    "(Codigo_empleado, Cedula_empleado, Celular_empleado, Correo_empleado) VALUES (?,?,?,?)",
-                    d["Codigo_empleado"], d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"],
-                )
+            cn.execute(
+                f"INSERT INTO {self._employee_contact_table()} "
+                "(Codigo_empleado, Cedula_empleado, Celular_empleado, Correo_empleado) VALUES (?,?,?,?)",
+                d["Codigo_empleado"], d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"],
+            )
 
     def _update_empleados(self, key, d):
         identifier, site = self._split_key("empleados", key)
@@ -498,24 +500,23 @@ class NodeRepository:
                 "WHERE Codigo_empleado=? AND RTRIM(Codigo_sede)=?",
                 d["Nombre_empleado"], d["Cargo"], identifier, site,
             )
-            if self.t["empleado_contacto"]:
-                cursor = cn.execute(
-                    f"UPDATE {self._table(self.t['empleado_contacto'])} SET Cedula_empleado=?, "
-                    "Celular_empleado=?, Correo_empleado=? WHERE Codigo_empleado=?",
-                    d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"], identifier,
+            contact = self._employee_contact_table()
+            cursor = cn.execute(
+                f"UPDATE {contact} SET Cedula_empleado=?, "
+                "Celular_empleado=?, Correo_empleado=? WHERE Codigo_empleado=?",
+                d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"], identifier,
+            )
+            if cursor.rowcount == 0:
+                cn.execute(
+                    f"INSERT INTO {contact} "
+                    "(Codigo_empleado, Cedula_empleado, Celular_empleado, Correo_empleado) VALUES (?,?,?,?)",
+                    identifier, d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"],
                 )
-                if cursor.rowcount == 0:
-                    cn.execute(
-                        f"INSERT INTO {self._table(self.t['empleado_contacto'])} "
-                        "(Codigo_empleado, Cedula_empleado, Celular_empleado, Correo_empleado) VALUES (?,?,?,?)",
-                        identifier, d["Cedula_empleado"], d["Celular_empleado"], d["Correo_empleado"],
-                    )
 
     def _delete_empleados(self, key):
         identifier, site = self._split_key("empleados", key)
         with transaction(self.node_key) as cn:
-            if self.t["empleado_contacto"]:
-                cn.execute(f"DELETE FROM {self._table(self.t['empleado_contacto'])} WHERE Codigo_empleado=?", identifier)
+            cn.execute(f"DELETE FROM {self._employee_contact_table()} WHERE Codigo_empleado=?", identifier)
             cn.execute(
                 f"DELETE FROM {self._table(self.t['empleado_op'])} WHERE Codigo_empleado=? AND RTRIM(Codigo_sede)=?",
                 identifier, site,
