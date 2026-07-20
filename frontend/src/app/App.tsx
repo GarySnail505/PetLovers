@@ -10,7 +10,6 @@ import {
   ClipboardList,
   Database,
   Eye,
-  GitMerge,
   Home,
   LogOut,
   PawPrint,
@@ -50,7 +49,6 @@ type Screen =
   | "mascotas"
   | "empleados"
   | "servicios"
-  | "atencion"
   | "historial"
   | "sincronizacion";
 
@@ -360,77 +358,33 @@ function LoginScreen({
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 w-full max-w-6xl">
-        <div className="bg-gradient-to-br from-blue-600 to-violet-700 rounded-3xl p-8 text-white shadow-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-medium mb-6">
-            <GitMerge size={14} /> PetLovers Distributed Manager
-          </div>
-          <h1 className="text-3xl font-bold leading-tight">Gestión distribuida de la clínica veterinaria PetLovers</h1>
-          <p className="mt-4 text-white/85 max-w-xl text-sm leading-6">
-            Esta instalación se conecta exclusivamente a su SQL Server local. Las vistas particionadas reconstruyen
-            los datos de Cumbayá e Iñaquito y permiten operar empleados, servicios e historiales de ambas sedes.
-          </p>
+    <div className="login-screen">
+      <div className="login-shell">
+        <header className="login-brand">
+          <div className="login-brand-icon" aria-hidden="true"><PawPrint size={38} strokeWidth={2.4} /></div>
+          <h1>PetLovers</h1>
+          <p>Gestión veterinaria</p>
+        </header>
 
-          <div className="grid sm:grid-cols-3 gap-4 mt-8">
-            <div className="rounded-2xl bg-white/10 p-4 border border-white/15">
-              <p className="text-2xl font-bold">1</p>
-              <p className="text-xs text-white/80 mt-1">Conexión SQL local</p>
-            </div>
-            <div className="rounded-2xl bg-white/10 p-4 border border-white/15">
-              <p className="text-2xl font-bold">4</p>
-              <p className="text-xs text-white/80 mt-1">Vistas particionadas</p>
-            </div>
-            <div className="rounded-2xl bg-white/10 p-4 border border-white/15">
-              <p className="text-2xl font-bold">CRUD</p>
-              <p className="text-xs text-white/80 mt-1">Operación completa</p>
-            </div>
-          </div>
-
-          <div className="mt-8 rounded-2xl bg-white/10 border border-white/15 p-5 text-sm">
-            <p className="font-semibold mb-2">Arquitectura local distribuida</p>
-            <p className="text-white/90 leading-6">
-              El aplicativo no almacena direcciones del nodo remoto. La comunicación entre fragmentos queda a cargo
-              de SQL Server, los servidores vinculados y DTC.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-3xl p-8 border border-border shadow-lg">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground">Iniciar sesión</h2>
-            <p className="text-sm text-muted-foreground mt-1">Acceda al aplicativo distribuido para comenzar a trabajar.</p>
-          </div>
-
+        <main className="login-form-panel">
+          <p className="login-welcome">Acceso al sistema</p>
           {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError(null)} /></div>}
 
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Usuario</label>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="mt-1 w-full px-3 py-3 rounded-xl border border-border bg-input-background text-sm outline-none focus:ring-2 focus:ring-ring/30"
-              />
+              <label htmlFor="username" className="login-field-label">Usuario</label>
+              <input id="username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required className="login-input" />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full px-3 py-3 rounded-xl border border-border bg-input-background text-sm outline-none focus:ring-2 focus:ring-ring/30"
-              />
+              <label htmlFor="password" className="login-field-label">Contraseña</label>
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required className="login-input" />
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl bg-accent text-white font-medium hover:bg-accent/90 transition-colors disabled:opacity-60"
-            >
-              {loading ? "Validando..." : "Ingresar al sistema"}
+            <button type="submit" disabled={loading} className="login-submit">
+              <Wifi size={17} /> {loading ? "Validando..." : "Iniciar sesión"}
             </button>
           </form>
-        </div>
+          <p className="login-security-note">Sistema protegido · Solo personal autorizado</p>
+        </main>
       </div>
     </div>
   );
@@ -455,7 +409,6 @@ function Sidebar({
     { key: "mascotas", label: "Mascotas", icon: <PawPrint size={16} /> },
     { key: "empleados", label: "Empleados", icon: <UserCheck size={16} /> },
     { key: "servicios", label: "Servicios", icon: <Activity size={16} /> },
-    { key: "atencion", label: "Atención", icon: <Plus size={16} /> },
     { key: "historial", label: "Historial", icon: <ClipboardList size={16} /> },
   ];
 
@@ -1201,8 +1154,6 @@ export default function App() {
     switch (screen) {
       case "dashboard":
         return <DashboardScreen data={dashboardData} />;
-      case "atencion":
-        return entities.historiales ? <EntityScreen entity={entities.historiales} activeNode={activeNode} csrfToken={csrfToken} emphasizeCreate onNotify={notify} /> : <EmptyState title="Sin módulo" description="No hay metadata disponible para atenciones." />;
       case "historial":
         return entities.historiales ? <EntityScreen entity={entities.historiales} activeNode={activeNode} csrfToken={csrfToken} onNotify={notify} /> : <EmptyState title="Sin módulo" description="No hay metadata disponible." />;
       default:
